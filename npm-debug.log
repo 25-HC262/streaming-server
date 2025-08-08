@@ -1,0 +1,45 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'run', 'start' ]
+2 info using npm@3.5.2
+3 info using node@v8.10.0
+4 verbose run-script [ 'prestart', 'start', 'poststart' ]
+5 info lifecycle streaming-server@1.0.0~prestart: streaming-server@1.0.0
+6 silly lifecycle streaming-server@1.0.0~prestart: no script for prestart, continuing
+7 info lifecycle streaming-server@1.0.0~start: streaming-server@1.0.0
+8 verbose lifecycle streaming-server@1.0.0~start: unsafe-perm in lifecycle true
+9 verbose lifecycle streaming-server@1.0.0~start: PATH: /usr/share/npm/bin/node-gyp-bin:/mnt/c/Users/mj183/OneDrive/문서/GitHub/streaming-server/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Ruby33-x64/bin:/mnt/c/Program Files/Common Files/Oracle/Java/javapath:/mnt/c/Program Files (x86)/VMware/VMware Workstation/bin/:/mnt/c/Program Files/Amazon Corretto/jdk11.0.15_9/bin:/mnt/c/windows/system32:/mnt/c/windows:/mnt/c/windows/System32/Wbem:/mnt/c/windows/System32/WindowsPowerShell/v1.0/:/mnt/c/windows/System32/OpenSSH/:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/PuTTY/:/mnt/c/Program Files/Bandizip/:/mnt/c/Program Files/Git/cmd:/mnt/c/Terraform:/mnt/c/Program Files/nodejs/:/mnt/c/ProgramData/Microsoft/Windows/Start Menu/Programs/MySQL:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/Amazon/AWSCLIV2/:/mnt/c/Program Files/Git LFS:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/c/Users/mj183/AppData/Local/Programs/Python/Python311/Scripts/:/mnt/c/Users/mj183/AppData/Local/Programs/Python/Python311/:/mnt/c/Users/mj183/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/mj183/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/mj183/AppData/Local/GitHubDesktop/bin:/mnt/c/Users/mj183/AppData/Local/Android/Sdk/platform-tools:/mnt/c/Users/mj183/AppData/Roaming/npm:/mnt/c/Users/mj183/.dotnet/tools:/mnt/c/Users/mj183/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/mj183/AppData/Local/Programs/cursor/resources/app/bin:/snap/bin
+10 verbose lifecycle streaming-server@1.0.0~start: CWD: /mnt/c/Users/mj183/OneDrive/문서/GitHub/streaming-server
+11 silly lifecycle streaming-server@1.0.0~start: Args: [ '-c', 'node src/app.js' ]
+12 silly lifecycle streaming-server@1.0.0~start: Returned: code: 1  signal: null
+13 info lifecycle streaming-server@1.0.0~start: Failed to exec start script
+14 verbose stack Error: streaming-server@1.0.0 start: `node src/app.js`
+14 verbose stack Exit status 1
+14 verbose stack     at EventEmitter.<anonymous> (/usr/share/npm/lib/utils/lifecycle.js:232:16)
+14 verbose stack     at emitTwo (events.js:126:13)
+14 verbose stack     at EventEmitter.emit (events.js:214:7)
+14 verbose stack     at ChildProcess.<anonymous> (/usr/share/npm/lib/utils/spawn.js:24:14)
+14 verbose stack     at emitTwo (events.js:126:13)
+14 verbose stack     at ChildProcess.emit (events.js:214:7)
+14 verbose stack     at maybeClose (internal/child_process.js:925:16)
+14 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:209:5)
+15 verbose pkgid streaming-server@1.0.0
+16 verbose cwd /mnt/c/Users/mj183/OneDrive/문서/GitHub/streaming-server
+17 error Linux 5.15.167.4-microsoft-standard-WSL2
+18 error argv "/usr/bin/node" "/usr/bin/npm" "run" "start"
+19 error node v8.10.0
+20 error npm  v3.5.2
+21 error code ELIFECYCLE
+22 error streaming-server@1.0.0 start: `node src/app.js`
+22 error Exit status 1
+23 error Failed at the streaming-server@1.0.0 start script 'node src/app.js'.
+23 error Make sure you have the latest version of node.js and npm installed.
+23 error If you do, this is most likely a problem with the streaming-server package,
+23 error not with npm itself.
+23 error Tell the author that this fails on your system:
+23 error     node src/app.js
+23 error You can get information on how to open an issue for this project with:
+23 error     npm bugs streaming-server
+23 error Or if that isn't available, you can get their info via:
+23 error     npm owner ls streaming-server
+23 error There is likely additional logging output above.
+24 verbose exit [ 1, true ]

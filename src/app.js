@@ -14,7 +14,7 @@ const __dirname = dirname(__filename);
 const app = express();
 
 // 엔드포인트 ws://3.34.11.17:8000/ws
-
+// 깃 커밋용 수정
 //const privateKey = fs.readFileSync(join(__dirname, 'private.key'), 'utf8');
 //const certificate = fs.readFileSync(join(__dirname, 'certificate.crt'), 'utf8');
 //const credentials = { key: privateKey, cert: certificate };

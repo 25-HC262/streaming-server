@@ -6,6 +6,7 @@ import { dirname, join } from 'path';
 import { WebSocketServer } from 'ws';
 import { spawn } from 'child_process';
 import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
+import https from 'https';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -13,6 +14,10 @@ const __dirname = dirname(__filename);
 const app = express();
 
 // 엔드포인트 ws://3.34.11.17:8000/ws
+
+const privateKey = fs.readFileSync('private.key', 'utf8');
+const certificate = fs.readFileSync('certificate.crt', 'utf8');
+const credentials = { key: privateKey, cert: certificate };
 
 // Websocket client 
 const modelEndpoint = 'ws://3.34.11.17:8000/ws';
@@ -49,7 +54,8 @@ app.get('/', (req, res) => {
     res.sendFile('./src/client.html', { root: process.cwd() });
 });
 
-const server = app.listen(3000);
+// const server = app.listen(3000);
+const server = https.createServer(credentials, app);
 
 // WebSocket server for receiving live streams and forwarding to viewers
 const wss = new WebSocketServer({ server, path: '/stream' });

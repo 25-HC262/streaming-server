@@ -3,7 +3,7 @@ import fs from 'fs';
 import hls from 'hls-server';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { WebSocketServer } from 'ws';
+import { WebSocketServer, WebSocket } from 'ws';
 import { spawn } from 'child_process';
 import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
 import https from 'https';

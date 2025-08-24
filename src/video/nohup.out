@@ -1,0 +1,7 @@
+
+> streaming-server@1.0.0 start
+> node src/app.js
+
+HTTPS server running on port 3000
+Successfully connected to model endpoint.
+File not exist: /home/ubuntu/streaming-server/src/video/test.m3u8

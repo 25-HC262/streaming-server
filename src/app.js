@@ -15,9 +15,10 @@ const app = express();
 
 // 엔드포인트 ws://3.34.11.17:8000/ws
 
-const privateKey = fs.readFileSync('private.key', 'utf8');
-const certificate = fs.readFileSync('certificate.crt', 'utf8');
+const privateKey = fs.readFileSync(join(__dirname, 'private.key'), 'utf8');
+const certificate = fs.readFileSync(join(__dirname, 'certificate.crt'), 'utf8');
 const credentials = { key: privateKey, cert: certificate };
+
 
 // Websocket client 
 const modelEndpoint = 'ws://3.34.11.17:8000/ws';
@@ -48,7 +49,8 @@ function connectToModel() {
 connectToModel();
 
 // Serve static files from the src directory
-app.use('/src', express.static(join(process.cwd(), 'src')));
+app.use('/', express.static(join(__dirname, '..')));
+//app.use(express.static(join(__dirname)));
 
 app.get('/', (req, res) => {
     res.sendFile('./src/client.html', { root: process.cwd() });
@@ -212,6 +214,11 @@ wss.on('connection', (ws) => {
             senderToPublishingUserIds.delete(ws);
         }
     });
+});
+
+
+server.listen(3000, () => {
+    console.log('HTTPS server running on port 3000');
 });
 
 // HLS server configuration

@@ -1,5 +1,5 @@
 0 info it worked if it ends with ok
-1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'run', 'start' ]
+1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'start' ]
 2 info using npm@3.5.2
 3 info using node@v8.10.0
 4 verbose run-script [ 'prestart', 'start', 'poststart' ]
@@ -7,7 +7,7 @@
 6 silly lifecycle streaming-server@1.0.0~prestart: no script for prestart, continuing
 7 info lifecycle streaming-server@1.0.0~start: streaming-server@1.0.0
 8 verbose lifecycle streaming-server@1.0.0~start: unsafe-perm in lifecycle true
-9 verbose lifecycle streaming-server@1.0.0~start: PATH: /usr/share/npm/bin/node-gyp-bin:/mnt/c/Users/mj183/OneDrive/문서/GitHub/streaming-server/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Ruby33-x64/bin:/mnt/c/Program Files/Common Files/Oracle/Java/javapath:/mnt/c/Program Files (x86)/VMware/VMware Workstation/bin/:/mnt/c/Program Files/Amazon Corretto/jdk11.0.15_9/bin:/mnt/c/windows/system32:/mnt/c/windows:/mnt/c/windows/System32/Wbem:/mnt/c/windows/System32/WindowsPowerShell/v1.0/:/mnt/c/windows/System32/OpenSSH/:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/PuTTY/:/mnt/c/Program Files/Bandizip/:/mnt/c/Program Files/Git/cmd:/mnt/c/Terraform:/mnt/c/Program Files/nodejs/:/mnt/c/ProgramData/Microsoft/Windows/Start Menu/Programs/MySQL:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/Amazon/AWSCLIV2/:/mnt/c/Program Files/Git LFS:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/c/Users/mj183/AppData/Local/Programs/Python/Python311/Scripts/:/mnt/c/Users/mj183/AppData/Local/Programs/Python/Python311/:/mnt/c/Users/mj183/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/mj183/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/mj183/AppData/Local/GitHubDesktop/bin:/mnt/c/Users/mj183/AppData/Local/Android/Sdk/platform-tools:/mnt/c/Users/mj183/AppData/Roaming/npm:/mnt/c/Users/mj183/.dotnet/tools:/mnt/c/Users/mj183/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/mj183/AppData/Local/Programs/cursor/resources/app/bin:/snap/bin
+9 verbose lifecycle streaming-server@1.0.0~start: PATH: /usr/share/npm/bin/node-gyp-bin:/mnt/c/Users/mj183/OneDrive/문서/GitHub/streaming-server/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Ruby33-x64/bin:/mnt/c/Program Files/Common Files/Oracle/Java/javapath:/mnt/c/Program Files (x86)/VMware/VMware Workstation/bin/:/mnt/c/Program Files/Amazon Corretto/jdk11.0.15_9/bin:/mnt/c/windows/system32:/mnt/c/windows:/mnt/c/windows/System32/Wbem:/mnt/c/windows/System32/WindowsPowerShell/v1.0/:/mnt/c/windows/System32/OpenSSH/:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/PuTTY/:/mnt/c/Program Files/Bandizip/:/mnt/c/Program Files/Git/cmd:/mnt/c/Terraform:/mnt/c/Program Files/nodejs/:/mnt/c/ProgramData/Microsoft/Windows/Start Menu/Programs/MySQL:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/Amazon/AWSCLIV2/:/mnt/c/Program Files/Git LFS:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/c/Users/mj183/AppData/Local/Programs/Python/Python311/Scripts/:/mnt/c/Users/mj183/AppData/Local/Programs/Python/Python311/:/mnt/c/Users/mj183/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/mj183/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/mj183/AppData/Local/GitHubDesktop/bin:/mnt/c/Users/mj183/AppData/Local/Android/Sdk/platform-tools:/mnt/c/Users/mj183/AppData/Roaming/npm:/mnt/c/Users/mj183/.dotnet/tools:/mnt/c/Users/mj183/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/mj183/AppData/Local/Programs/cursor/resources/app/bin:/mnt/c/Users/mj183/.cursor/extensions/ms-python.debugpy-2025.10.0-win32-x64/bundled/scripts/noConfigScripts:/snap/bin
 10 verbose lifecycle streaming-server@1.0.0~start: CWD: /mnt/c/Users/mj183/OneDrive/문서/GitHub/streaming-server
 11 silly lifecycle streaming-server@1.0.0~start: Args: [ '-c', 'node src/app.js' ]
 12 silly lifecycle streaming-server@1.0.0~start: Returned: code: 1  signal: null
@@ -25,7 +25,7 @@
 15 verbose pkgid streaming-server@1.0.0
 16 verbose cwd /mnt/c/Users/mj183/OneDrive/문서/GitHub/streaming-server
 17 error Linux 5.15.167.4-microsoft-standard-WSL2
-18 error argv "/usr/bin/node" "/usr/bin/npm" "run" "start"
+18 error argv "/usr/bin/node" "/usr/bin/npm" "start"
 19 error node v8.10.0
 20 error npm  v3.5.2
 21 error code ELIFECYCLE

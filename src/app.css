@@ -72,3 +72,66 @@ video {
     border-radius: 3px;
     font-family: 'Courier New', monospace;
 }
+
+.video-controls {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.control-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 0 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.control-btn:hover {
+    background: #0056b3;
+}
+
+.control-btn:active {
+    background: #004085;
+}
+
+.control-btn.active {
+    background: #28a745;
+}
+
+/* Video inversion styles */
+.video-inverted {
+    transform: scaleX(-1);
+}
+
+.video-source-selector {
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.video-source-selector label {
+    font-weight: bold;
+    color: #333;
+}
+
+.source-select {
+    padding: 8px 12px;
+    border: 2px solid #007bff;
+    border-radius: 5px;
+    background: white;
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.source-select:focus {
+    outline: none;
+    border-color: #0056b3;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}

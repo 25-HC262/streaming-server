@@ -37,7 +37,7 @@ function connectToModel() {
     };
 
     modelWs.onerror = (error) => {
-        console.error('Model endpoint WebSocket error:', error);
+        console.error('Model endpoint WebSocket error:', error.message);
     };
 
     modelWs.onmessage = (message) => {

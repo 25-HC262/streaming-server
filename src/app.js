@@ -14,7 +14,7 @@ const __dirname = dirname(__filename);
 const app = express();
 
 // 엔드포인트 ws://3.34.11.17:8000/ws
-// 깃 커밋용 수정
+
 //const privateKey = fs.readFileSync(join(__dirname, 'private.key'), 'utf8');
 //const certificate = fs.readFileSync(join(__dirname, 'certificate.crt'), 'utf8');
 //const credentials = { key: privateKey, cert: certificate };
@@ -24,6 +24,7 @@ const app = express();
 const modelEndpoint = 'wss://model.trout-model.kro.kr/ws';
 let modelWs = null;
 
+// Connecting to model 
 function connectToModel() {
     modelWs = new WebSocket(modelEndpoint);
 
@@ -41,13 +42,15 @@ function connectToModel() {
     };
 
     modelWs.onmessage = (message) => {
-        // 모델로부터의 응답 처리 (필요시)
         try {
             const data = JSON.parse(message.data);
             console.log(`[모델 서버 응답] -> ${data.text}`);
             wss.clients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {
-                    client.send(message.data); // message.data는 이미 JSON 문자열
+                    client.send(JSON.stringify({
+                        type: 'model_response',
+                        text: data.text
+                    }));
                 }
             });
         } catch (error) {

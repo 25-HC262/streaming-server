@@ -6,7 +6,7 @@ import { dirname, join } from 'path';
 import { WebSocketServer, WebSocket } from 'ws';
 import { spawn } from 'child_process';
 import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
-import https from 'https';
+import http from 'http';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -14,14 +14,14 @@ const __dirname = dirname(__filename);
 const app = express();
 
 // 엔드포인트 ws://3.34.11.17:8000/ws
-
-const privateKey = fs.readFileSync(join(__dirname, 'private.key'), 'utf8');
-const certificate = fs.readFileSync(join(__dirname, 'certificate.crt'), 'utf8');
-const credentials = { key: privateKey, cert: certificate };
+// 깃 커밋용 수정
+//const privateKey = fs.readFileSync(join(__dirname, 'private.key'), 'utf8');
+//const certificate = fs.readFileSync(join(__dirname, 'certificate.crt'), 'utf8');
+//const credentials = { key: privateKey, cert: certificate };
 
 
 // Websocket client 
-const modelEndpoint = 'ws://3.34.11.17:8000/ws';
+const modelEndpoint = 'wss://model.trout-model.kro.kr/ws';
 let modelWs = null;
 
 function connectToModel() {
@@ -42,7 +42,17 @@ function connectToModel() {
 
     modelWs.onmessage = (message) => {
         // 모델로부터의 응답 처리 (필요시)
-        console.log('Message from model:', message.data);
+        try {
+            const data = JSON.parse(message.data);
+            console.log(`[모델 서버 응답] -> ${data.text}`);
+            wss.clients.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(message.data); // message.data는 이미 JSON 문자열
+                }
+            });
+        } catch (error) {
+            console.error('Failed to parse message from model:', message.data);
+        }
     };
 }
 
@@ -56,8 +66,8 @@ app.get('/', (req, res) => {
     res.sendFile('./src/client.html', { root: process.cwd() });
 });
 
-// const server = app.listen(3000);
-const server = https.createServer(credentials, app);
+//const server = app.listen(3000);
+const server = http.createServer(app);
 
 // WebSocket server for receiving live streams and forwarding to viewers
 const wss = new WebSocketServer({ server, path: '/stream' });

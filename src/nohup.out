@@ -1,0 +1,50 @@
+
+> streaming-server@1.0.0 start
+> node src/app.js
+
+node:events:495
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::3000
+    at Server.setupListenHandle [as _listen2] (node:net:1817:16)
+    at listenInCluster (node:net:1865:12)
+    at Server.listen (node:net:1953:7)
+    at file:///home/ubuntu/streaming-server/src/app.js:220:8
+    at ModuleJob.run (node:internal/modules/esm/module_job:195:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:337:24)
+    at async loadESM (node:internal/process/esm_loader:34:7)
+    at async handleMainPromise (node:internal/modules/run_main:106:12)
+Emitted 'error' event on WebSocketServer instance at:
+    at Server.emit (node:events:517:28)
+    at emitErrorNT (node:net:1844:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '::',
+  port: 3000
+}
+
+Node.js v18.20.8
+
+> streaming-server@1.0.0 start
+> node src/app.js
+
+HTTPS server running on port 3000
+Successfully connected to model endpoint.
+Terminated
+
+> streaming-server@1.0.0 start
+> node src/app.js
+
+HTTPS server running on port 3000
+Successfully connected to model endpoint.
+Terminated
+
+> streaming-server@1.0.0 start
+> node src/app.js
+
+HTTPS server running on port 3000
+Successfully connected to model endpoint.
+Terminated

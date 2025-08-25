@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Determine playback: if userId is provided, subscribe over WS and play with MediaSource; else play demo HLS
     const params = new URLSearchParams(window.location.search);
     const userId = params.get('userId');
-    const playbackUrl = '/src/video/test.m3u8';
+    const playbackUrl = '/src/video/NIA_SL_SEN0181_REAL01_F.m3u8';
     
     if (userId) {
         // Live playback over WebSocket + MediaSource using webm chunks

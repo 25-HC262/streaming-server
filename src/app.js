@@ -15,16 +15,11 @@ const app = express();
 
 // 엔드포인트 ws://3.34.11.17:8000/ws
 
-//const privateKey = fs.readFileSync(join(__dirname, 'private.key'), 'utf8');
-//const certificate = fs.readFileSync(join(__dirname, 'certificate.crt'), 'utf8');
-//const credentials = { key: privateKey, cert: certificate };
-
-
 // Websocket client 
 const modelEndpoint = 'wss://model.trout-model.kro.kr/ws';
 let modelWs = null;
 
-// Connecting to model 
+// Receive actions from model  
 function connectToModel() {
     modelWs = new WebSocket(modelEndpoint);
 
@@ -59,9 +54,8 @@ function connectToModel() {
     };
 }
 
-connectToModel();
+connectToModel(); // Making connection with model 
 
-// Serve static files from the src directory
 app.use('/', express.static(join(__dirname, '..')));
 //app.use(express.static(join(__dirname)));
 
@@ -72,7 +66,7 @@ app.get('/', (req, res) => {
 //const server = app.listen(3000);
 const server = http.createServer(app);
 
-// WebSocket server for receiving live streams and forwarding to viewers
+// Receive actions from chrome extension program   
 const wss = new WebSocketServer({ server, path: '/stream' });
 
 // Routing maps
@@ -80,7 +74,7 @@ const userIdToSubscribers = new Map();
 const senderToPublishingUserIds = new Map(); 
 const userIdToMimeType = new Map(); 
 
-// Keep simple per-connection state for pairing metadata with the next binary chunk
+// Handling connection between chrome extension - streaming server - model server
 wss.on('connection', (ws) => {
     const state = {
         pendingChunkQueue: [],
@@ -97,11 +91,12 @@ wss.on('connection', (ws) => {
                 }
                 const userId = state.pendingChunkQueue.shift();
                 if (modelWs && modelWs.readyState === 1) {
-                    modelWs.send(data);
+                    modelWs.send(data); // Sending video data to model 
                     console.log(`Forwarded video chunk for user ${userId} to model.`);
                 }
                 // return;
                 
+                // Debugging code : checking if video is sending 
                 const subs = userIdToSubscribers.get(userId);
                 if (subs && subs.size) {
                     for (const client of subs) {
@@ -113,7 +108,6 @@ wss.on('connection', (ws) => {
                  return;
             }
 
-            // Text message: try parse JSON control/info messages
             const text = typeof data === 'string' ? data : data.toString('utf8');
             let message;
             try {
@@ -123,6 +117,7 @@ wss.on('connection', (ws) => {
                 return;
             }
 
+            // Changing status of streaming server depend on chrome extension program 
             switch (message.type) {
                 case 'start_stream': {
                     const { userId, userName, width, height, fps, mimeType } = message;
@@ -149,7 +144,7 @@ wss.on('connection', (ws) => {
                     const { userId } = message;
                     state.pendingChunkQueue.push(userId);
                     if (modelWs && modelWs.readyState === 1) {
-                        modelWs.send(text);
+                        // modelWs.send(text);
                         console.log(`Forwarded metadata for user ${userId} to model.`);
                     }
                     break;

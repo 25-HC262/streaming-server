@@ -102,15 +102,15 @@ wss.on('connection', (ws) => {
                 }
                 // return;
                 
-                 const subs = userIdToSubscribers.get(userId);
-                 if (subs && subs.size) {
-                     for (const client of subs) {
-                         if (client.readyState === 1) {
-                             client.send(data, { binary: true });
-                         }
-                     }
-                 }
-                 // return;
+                const subs = userIdToSubscribers.get(userId);
+                if (subs && subs.size) {
+                    for (const client of subs) {
+                        if (client.readyState === 1) {
+                            client.send(data, { binary: true });
+                        }
+                    }
+                }
+                 return;
             }
 
             // Text message: try parse JSON control/info messages

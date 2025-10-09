@@ -1,6 +1,7 @@
 import express from 'express';
 import http from 'http';
 import { fileURLToPath } from 'url';
+
 import { dirname, join } from 'path';
 import { WebSocketServer } from 'ws';
 
@@ -9,10 +10,15 @@ import { handleWebSocketConnection } from './controllers/webSocketController.js'
 
 
 const __filename = fileURLToPath(import.meta.url);
+
 const __dirname = dirname(__filename);
+
+
 
 const app = express();
 const server = http.createServer(app);
+
+
 
 // Connecting WebSocketServer into HTTP server and setting path 
 const wss = new WebSocketServer({ server, path: '/stream' });
@@ -37,5 +43,7 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`HTTPS/WebSocket server running on port ${PORT}`);
 });
+
+
 
 export default app;

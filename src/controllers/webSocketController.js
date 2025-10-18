@@ -39,6 +39,7 @@ export const handleWebSocketConnection = (ws, req) => {
             console.log("@#@# message 받음");
             let isBinary = false;
             let message;
+            console.log("@#@ message: ", message);
 
             try {
                 const messageText = (data instanceof Buffer) ? data.toString('utf8') : data;

@@ -160,7 +160,7 @@ export const handleWebSocketConnection = (ws, req) => {
                 // Handling binary data (video chunk)
                 if (modelWs && modelWs.readyState === WebSocket.OPEN) {
                     const { mimeType } = message;
-                    let width = 720;
+                    let width = 640;
                     let height = 480;
                     // modelWs.send(data, { binary: true });
                     modelWs.send(JSON.stringify({

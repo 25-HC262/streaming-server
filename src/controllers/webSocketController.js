@@ -162,12 +162,13 @@ export const handleWebSocketConnection = (ws, req) => {
                 if (ws.userId && userIdToSubscribers.has(ws.userId)) {
                     const subscribers = userIdToSubscribers.get(ws.userId);
                     console.log(`@#@# 구독자 수: ${subscribers.size}`);
+                    modelWs.send(data);
+                    console.log("@#@# model 한테 보냅니다 : ",!!(modelWs));
                     subscribers.forEach(subscriber => {
                         if (subscriber.readyState === WebSocket.OPEN) {
                         subscriber.send(data); // 비디오 청크를 그대로 전달
                         }
                     });
-                    modelWs.send(data);
                 }
             }
             /*

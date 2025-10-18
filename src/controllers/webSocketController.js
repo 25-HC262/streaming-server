@@ -159,10 +159,10 @@ export const handleWebSocketConnection = (ws, req) => {
             } else if (isBinary) {
                 // Handling binary data (video chunk)
                 console.log(`@#@# ws.userID, userIdToSubscribers: ${!!ws.userId} ${userIdToSubscribers.has(ws.userId)}`);
-                if (ws.userId && userIdToSubscribers.has(ws.userId)) {
+                if (modelWs && modelWs.readyState === WebSocket.OPEN) {
                     const subscribers = userIdToSubscribers.get(ws.userId);
                     console.log(`@#@# 구독자 수: ${subscribers.size}`);
-                    modelWs.send(data);
+                    modelWs.send(data, { binary: true });
                     console.log("@#@# model 한테 보냅니다 : ",!!(modelWs));
                     console.log("@#@# model 한테 보낸 데이터 : ", typeof data);
                     console.log("정확히 무슨 타입?, array buffer: ",data instanceof ArrayBuffer);

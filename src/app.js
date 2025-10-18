@@ -34,7 +34,7 @@ wss.on('connection', (ws, req) => {
     }
 
     handleWebSocketConnection(ws, req)
-    connectToModel();
+    connectToModel(wss);
 });
 
 app.use('/', express.static(join(__dirname, 'public')));

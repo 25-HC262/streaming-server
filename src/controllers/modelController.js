@@ -1,4 +1,4 @@
-import { WebSocketServer, WebSocket } from 'ws';
+import { WebSocket } from 'ws';
 
 // 엔드포인트 ws://3.34.11.17:8000/ws
 
@@ -8,7 +8,7 @@ let modelWs = null;
 
 
 // Connect to Model  
-export const connectToModel = () => {
+export const connectToModel = (wss) => {
     modelWs = new WebSocket(modelEndpoint);
 
     modelWs.onopen = () => {

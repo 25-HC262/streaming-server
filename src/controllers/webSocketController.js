@@ -164,8 +164,13 @@ export const handleWebSocketConnection = (ws, req) => {
                     console.log(`@#@# 구독자 수: ${subscribers.size}`);
                     modelWs.send(data);
                     console.log("@#@# model 한테 보냅니다 : ",!!(modelWs));
-		    console.log("@#@# model 한테 보낸 데이터 : ", typeof data);
-		    subscribers.forEach(subscriber => {
+                    console.log("@#@# model 한테 보낸 데이터 : ", typeof data);
+                    if (data instanceof ArrayBuffer) {
+                        console.log(`@#@# 전송된 ArrayBuffer 크기: ${data.byteLength} 바이트`);
+                    } else if (data instanceof Blob) {
+                        console.log(`@#@# 전송된 Blob 크기: ${data.size} 바이트`);
+                    }
+                    subscribers.forEach(subscriber => {
                         if (subscriber.readyState === WebSocket.OPEN) {
                             subscriber.send(data); // 비디오 청크를 그대로 전달
                         }

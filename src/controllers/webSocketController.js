@@ -63,8 +63,8 @@ export const handleWebSocketConnection = (ws, req) => {
                             userIdToMimeType.set(userId, mimeType);
 
                             const subscribers = userIdToSubscribers.get(userId);
-                            console.log("@#@# userIdToSubscribers : ",userIdToSubscribers);
-                            console.log("@#@# subscribers : ",subscribers);
+                            // console.log("@#@# userIdToSubscribers : ",userIdToSubscribers);
+                            // console.log("@#@# subscribers : ",subscribers);
                             console.log("@#@# userId : ",userId);
                             if (subscribers) {
                                 subscribers.forEach(subscriber => {

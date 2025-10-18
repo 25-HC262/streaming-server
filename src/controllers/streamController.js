@@ -15,8 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let ws;
 
     const connectToStreamingServer = () => {
-	// const serverUrl = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + `/stream?userId=${userId}`;
-        const serverUrl = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + `/stream`;
+	const serverUrl = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + `/stream?userId=${userId}`;
+        // const serverUrl = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + `/stream`;
 	console.log("@#@# serverUrl: ",serverUrl);
         ws = new WebSocket(serverUrl);
         ws.binaryType = 'arraybuffer'; 

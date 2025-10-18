@@ -8,7 +8,7 @@ let modelWs = null;
 
 
 // Connect to Model  
-function connectToModel() {
+export const connectToModel = () => {
     modelWs = new WebSocket(modelEndpoint);
 
     modelWs.onopen = () => {
@@ -42,4 +42,3 @@ function connectToModel() {
     };
 }
 
-connectToModel(); 

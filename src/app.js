@@ -7,6 +7,7 @@ import { WebSocketServer } from 'ws';
 
 import { indexRoutes } from './routes/indexRoutes.js'
 import { handleWebSocketConnection } from './controllers/webSocketController.js'; 
+import { connectToModel } from './controllers/modelController.js';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -33,6 +34,7 @@ wss.on('connection', (ws, req) => {
     }
 
     handleWebSocketConnection(ws, req)
+    connectToModel();
 });
 
 app.use('/', express.static(join(__dirname, 'public')));

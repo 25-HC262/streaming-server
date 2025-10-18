@@ -77,6 +77,16 @@ export const handleWebSocketConnection = (ws, req) => {
                                     }
                                 });
                             }
+                            if (modelWs && modelWs.readyState === WebSocket.OPEN) {
+                                modelWs.send(JSON.stringify({
+                                    type: 'stream_config', 
+                                    userId,
+                                    mimeType,
+                                    width,
+                                    height
+                                }));
+                                console.log(`[MODEL 중계] 초기 설정 전송: ${mimeType}`);
+                            }
                             break;
                         }
                         case 'stop_stream': {
@@ -163,15 +173,15 @@ export const handleWebSocketConnection = (ws, req) => {
                     const width = 640;
                     const height = 480;
                     const mimeType = userIdToMimeType.get(publishingUserId); // 맵에서 가져옴
-                    // modelWs.send(data, { binary: true });
+                    modelWs.send(data, { binary: true });
                     console.log("@#@# sended data (width, height, mimeType)", width, height, mimeType)
-                    modelWs.send(JSON.stringify({
-                        type: 'stream_config', // 새로운 타입으로 정의
-                        userId,
-                        mimeType,
-                        width,
-                        height
-                    }));
+                    // modelWs.send(JSON.stringify({
+                    //     type: 'stream_config', // 새로운 타입으로 정의
+                    //     userId,
+                    //     mimeType,
+                    //     width,
+                    //     height
+                    // }));
                     console.log("@#@# model 한테 보냅니다 : ",!!(modelWs));
                     console.log("@#@# model 한테 보낸 데이터 : ", typeof data);
                     console.log("정확히 무슨 타입?, array buffer: ",data instanceof ArrayBuffer);

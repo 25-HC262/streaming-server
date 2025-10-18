@@ -165,6 +165,8 @@ export const handleWebSocketConnection = (ws, req) => {
                     modelWs.send(data);
                     console.log("@#@# model 한테 보냅니다 : ",!!(modelWs));
                     console.log("@#@# model 한테 보낸 데이터 : ", typeof data);
+                    console.log("정확히 무슨 타입?, array buffer: ",data instanceof ArrayBuffer);
+                    console.log("정확히 무슨 타입?, Blob: ",data instanceof Blob);
                     if (data instanceof ArrayBuffer) {
                         console.log(`@#@# 전송된 ArrayBuffer 크기: ${data.byteLength} 바이트`);
                     } else if (data instanceof Blob) {

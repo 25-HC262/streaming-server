@@ -38,7 +38,7 @@ export const connectToModel = () => {
                 }
             });
         } catch (error) {
-            console.error('Failed to parse message from model:', message.data);
+            console.error('Failed to parse message from model:', dataString);
         }
     };
 }

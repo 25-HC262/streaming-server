@@ -11,11 +11,11 @@ export const handleWebSocketConnection = (ws, req) => {
     // const wss = new WebSocketServer({ server, path: '/stream' });
 
     // Central maps for tracking users and their streams
-    /*
+    
     const userIdToSubscribers = new Map();
     const senderToPublishingUserIds = new Map();
     const userIdToMimeType = new Map();
-    */
+    
    const urlParams = new URLSearchParams(req.url.slice(req.url.indexOf('?')));
         const userId = urlParams.get('userId');
 

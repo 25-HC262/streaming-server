@@ -158,10 +158,7 @@ export const handleWebSocketConnection = (ws, req) => {
                 }
             } else if (isBinary) {
                 // Handling binary data (video chunk)
-                console.log(`@#@# ws.userID, userIdToSubscribers: ${!!ws.userId} ${userIdToSubscribers.has(ws.userId)}`);
                 if (modelWs && modelWs.readyState === WebSocket.OPEN) {
-                    const subscribers = userIdToSubscribers.get(ws.userId);
-                    console.log(`@#@# 구독자 수: ${subscribers.size}`);
                     modelWs.send(data, { binary: true });
                     console.log("@#@# model 한테 보냅니다 : ",!!(modelWs));
                     console.log("@#@# model 한테 보낸 데이터 : ", typeof data);
@@ -173,6 +170,11 @@ export const handleWebSocketConnection = (ws, req) => {
                     } else if (data instanceof Blob) {
                         console.log(`@#@# 전송된 Blob 크기: ${data.size} 바이트`);
                     }
+                }
+                console.log(`@#@# ws.userID, userIdToSubscribers: ${!!ws.userId} ${userIdToSubscribers.has(ws.userId)}`);
+                if (ws.userId && userIdToSubscribers.has(ws.userId)) {
+                    const subscribers = userIdToSubscribers.get(ws.userId);
+                    console.log(`@#@# 구독자 수: ${subscribers.size}`);
                     subscribers.forEach(subscriber => {
                         if (subscriber.readyState === WebSocket.OPEN) {
                             subscriber.send(data); // 비디오 청크를 그대로 전달

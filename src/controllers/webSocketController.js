@@ -166,7 +166,7 @@ export const handleWebSocketConnection = (ws, req) => {
                     console.log("@#@# model 한테 보냅니다 : ",!!(modelWs));
                     subscribers.forEach(subscriber => {
                         if (subscriber.readyState === WebSocket.OPEN) {
-                        subscriber.send(data); // 비디오 청크를 그대로 전달
+                            subscriber.send(data); // 비디오 청크를 그대로 전달
                         }
                     });
                 }

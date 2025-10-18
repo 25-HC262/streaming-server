@@ -21,8 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 비디오 청크 큐를 처리하는 함수
     function processBufferQueue() {
-        if (!sourceBuffer || sourceBuffer.updating || bufferQueue.length === 0) {
+        if (!sourceBuffer || bufferQueue.length === 0) {
             console.log("@#@# 처리되는 비디오가 없음");
+            return;
+        }
+
+        if (sourceBuffer.updating) {
+            console.log("소스 버퍼가 데이터를 처리 중입니다");
             return;
         }
 

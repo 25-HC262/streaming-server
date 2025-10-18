@@ -58,7 +58,7 @@ export const handleWebSocketConnection = (ws, req) => {
                     switch (message.type) {
                         case 'start_stream': {
                             const { userId, userName, width, height, fps, mimeType } = message;
-
+                            
                             ws.userId = userId;
                             userIdToStream.set(userId, []); // Initialize new stream buffer 
                             userIdToMimeType.set(userId, mimeType);
@@ -159,7 +159,14 @@ export const handleWebSocketConnection = (ws, req) => {
             } else if (isBinary) {
                 // Handling binary data (video chunk)
                 if (modelWs && modelWs.readyState === WebSocket.OPEN) {
-                    modelWs.send(data, { binary: true });
+                    // modelWs.send(data, { binary: true });
+                    modelWs.send(JSON.stringify({
+                        type: 'stream_config', // 새로운 타입으로 정의
+                        userId,
+                        mimeType,
+                        width,
+                        height
+                    }));
                     console.log("@#@# model 한테 보냅니다 : ",!!(modelWs));
                     console.log("@#@# model 한테 보낸 데이터 : ", typeof data);
                     console.log("정확히 무슨 타입?, array buffer: ",data instanceof ArrayBuffer);

@@ -159,7 +159,7 @@ export const handleWebSocketConnection = (ws, req) => {
             } else if (isBinary) {
                 // Handling binary data (video chunk)
                 if (modelWs && modelWs.readyState === WebSocket.OPEN) {
-                    const { userId, userName, width, height, fps, mimeType } = message;
+                    const { width, height, mimeType } = message;
                     // modelWs.send(data, { binary: true });
                     modelWs.send(JSON.stringify({
                         type: 'stream_config', // 새로운 타입으로 정의

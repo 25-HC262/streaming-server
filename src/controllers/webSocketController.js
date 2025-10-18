@@ -43,7 +43,6 @@ export const handleWebSocketConnection = (ws, req) => {
             try {
                 const messageText = (data instanceof Buffer) ? data.toString('utf8') : data;
                 message = JSON.parse(messageText);
-                console.log("@#@ message: ", message);
                 
                 console.log(`@#@# JSON 메시지가 수신됨 in websockercontroller: ${message.type}`);
                 
@@ -160,6 +159,7 @@ export const handleWebSocketConnection = (ws, req) => {
             } else if (isBinary) {
                 // Handling binary data (video chunk)
                 if (modelWs && modelWs.readyState === WebSocket.OPEN) {
+                    console.log("@#@ message: ", message);
                     const { mimeType } = message;
                     let width = 640;
                     let height = 480;

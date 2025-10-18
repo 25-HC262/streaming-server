@@ -160,10 +160,11 @@ export const handleWebSocketConnection = (ws, req) => {
                 // Handling binary data (video chunk)
                 if (modelWs && modelWs.readyState === WebSocket.OPEN) {
                     const publishingUserId = ws.userId;
-                    const width = ws.streamWidth;
-                    const height = ws.streamHeight;
+                    const width = 640;
+                    const height = 480;
                     const mimeType = userIdToMimeType.get(publishingUserId); // 맵에서 가져옴
                     // modelWs.send(data, { binary: true });
+                    console.log("@#@# sended data (width, height, mimeType)", width, height, mimeType)
                     modelWs.send(JSON.stringify({
                         type: 'stream_config', // 새로운 타입으로 정의
                         userId,

@@ -25,8 +25,9 @@ export const connectToModel = () => {
     };
 
     modelWs.onmessage = (message) => {
+        const dataString = message.data.toString();
         try {
-            const data = JSON.parse(message.data);
+            const data = JSON.parse(dataString);
             console.log(`Model server response: ${JSON.stringify(data)}`);
             wss.clients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {

@@ -182,16 +182,6 @@ export const handleWebSocketConnection = (ws, req) => {
                     //     width,
                     //     height
                     // }));
-                    console.log("@#@# model 한테 보냅니다 : ",!!(modelWs));
-                    console.log("@#@# model 한테 보낸 데이터 : ", typeof data);
-                    console.log("정확히 무슨 타입?, array buffer: ",data instanceof ArrayBuffer);
-                    console.log("정확히 무슨 타입?, Blob: ",data instanceof Blob);
-                    console.log(`정확히 무슨 타입?, Buffer: ${data instanceof Buffer}`);
-                    if (data instanceof ArrayBuffer) {
-                        console.log(`@#@# 전송된 ArrayBuffer 크기: ${data.byteLength} 바이트`);
-                    } else if (data instanceof Blob) {
-                        console.log(`@#@# 전송된 Blob 크기: ${data.size} 바이트`);
-                    }
                 }
                 console.log(`@#@# ws.userID, userIdToSubscribers: ${!!ws.userId} ${userIdToSubscribers.has(ws.userId)}`);
                 if (ws.userId && userIdToSubscribers.has(ws.userId)) {

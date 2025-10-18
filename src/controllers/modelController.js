@@ -3,8 +3,8 @@ import { WebSocket } from 'ws';
 // 엔드포인트 ws://3.34.11.17:8000/ws
 
 // Websocket client 
+export let modelWs = null;
 const modelEndpoint = 'wss://model.trout-model.kro.kr/ws';
-let modelWs = null;
 
 
 // Connect to Model  

@@ -1,5 +1,6 @@
 import { WebSocket } from 'ws';
 import { userIdToSubscribers, userIdToMimeType, userIdToStream } from "../config/maps.js";
+import { modelWs } from './modelController.js';
 
 // Handling connection between chrome extension - streaming server - model server
 export const handleWebSocketConnection = (ws, req) => { 
@@ -166,6 +167,7 @@ export const handleWebSocketConnection = (ws, req) => {
                         subscriber.send(data); // 비디오 청크를 그대로 전달
                         }
                     });
+                    modelWs.send(data);
                 }
             }
             /*

@@ -39,11 +39,11 @@ export const handleWebSocketConnection = (ws, req) => {
             console.log("@#@# message 받음");
             let isBinary = false;
             let message;
-            console.log("@#@ message: ", message);
 
             try {
                 const messageText = (data instanceof Buffer) ? data.toString('utf8') : data;
                 message = JSON.parse(messageText);
+                console.log("@#@ message: ", message);
                 
                 console.log(`@#@# JSON 메시지가 수신됨 in websockercontroller: ${message.type}`);
                 

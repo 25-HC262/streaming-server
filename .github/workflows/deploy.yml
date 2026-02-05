@@ -30,9 +30,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build project
-        run: pnpm build
-
       - id: 'auth'
         uses: 'google-github-actions/auth@v2'
         with:
@@ -42,5 +39,7 @@ jobs:
       - name: 'Upload to GCS'
         uses: 'google-github-actions/upload-cloud-storage@v2'
         with:
-          path: 'dist'
+          path: './'
           destination: 'sign-language-korean/builds/${{ github.sha }}'
+          parent: false
+          glob: '**/*.{js,json,md}'

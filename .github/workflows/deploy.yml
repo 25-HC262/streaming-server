@@ -43,3 +43,25 @@ jobs:
           destination: 'sign-language-korean/builds/${{ github.sha }}'
           parent: false
           glob: '**/*.{js,json,md}'
+
+       # 1. Docker 로그인 (Artifact Registry 인증)
+      - name: Docker Auth
+        uses: 'docker/login-action@v3'
+        with:
+          username: 'oauth2access'
+          password: '${{ steps.auth.outputs.access_token }}'
+          registry: 'asia-northeast3-docker.pkg.dev' # 서울 리전 기준
+
+      # 2. Docker 이미지 빌드 및 푸시
+      - name: Build and Push Container
+        run: |-
+          docker build -t "asia-northeast3-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/my-repo/my-image:${{ github.sha }}" .
+          docker push "asia-northeast3-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/my-repo/my-image:${{ github.sha }}"
+
+      # 3. Cloud Run에 배포
+      - name: Deploy to Cloud Run
+        uses: 'google-github-actions/deploy-cloudrun@v2'
+        with:
+          service: 'my-service-name'
+          image: 'asia-northeast3-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/my-repo/my-image:${{ github.sha }}'
+          region: 'asia-northeast3'

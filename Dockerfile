@@ -10,10 +10,7 @@ WORKDIR /usr/src/app
 # 2. 소스 코드 복사
 COPY . .
 
-# 3. 의존성 설치 (ffmpeg 빌드 스크립트 실행 포함)
+# 3. 의존성 설치
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    CI=true pnpm install --no-frozen-lockfile --foreground-scripts
-
-# 4. 포트 설정 및 실행
-EXPOSE 3000
-CMD ["pnpm", "start"]
+    CI=true pnpm install --no-frozen-lockfile
+RUN pnpm rebuild @ffmpeg-installer/ffmpeg

@@ -14,3 +14,7 @@ COPY . .
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     CI=true pnpm install --no-frozen-lockfile
 RUN pnpm rebuild @ffmpeg-installer/ffmpeg
+
+EXPOSE 8080
+
+CMD ["pnpm", "start"]

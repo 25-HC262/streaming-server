@@ -10,7 +10,6 @@ COPY . /usr/src/app
 WORKDIR /usr/src/app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     CI=true pnpm install --no-frozen-lockfile
-RUN pnpm run build
 
 # 실행 전용 이미지 생성 및 결과물 복사
 FROM node:20-slim
@@ -20,4 +19,4 @@ COPY --from=build /usr/src/app/package.json ./package.json
 COPY --from=build /usr/src/app/node_modules ./node_modules
 
 EXPOSE 8080
-CMD [ "node", "dist/app.js" ]
+CMD ["pnpm", "start"]

@@ -1,27 +1,19 @@
-{
-  "name": "streaming-server",
-  "version": "1.0.0",
-  "description": "A streaming server with FFmpeg integration",
-  "main": "src/server.js",
-  "type": "module",
-  "scripts": {
-    "start": "node src/app.js",
-    "ffmpeg": "node src/ffmpeg.js",
-    "ffmpeg:invert": "node src/ffmpeg.js --invert",
-    "ffmpeg:both": "npm run ffmpeg && npm run ffmpeg:invert"
-  },
-  "dependencies": {
-    "@ffmpeg-installer/ffmpeg": "^1.1.0",
-    "express": "^4.21.2",
-    "fluent-ffmpeg": "^2.1.2",
-    "hls-server": "^1.5.0",
-    "ws": "^8.18.0"
-  },
-  "keywords": [
-    "streaming",
-    "ffmpeg",
-    "video"
-  ],
-  "author": "",
-  "license": "ISC"
-}
+FROM node:20-slim
+
+# 1. pnpm 설정 및 설치
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /usr/src/app
+
+# 2. 소스 코드 복사
+COPY . .
+
+# 3. 의존성 설치 (ffmpeg 빌드 스크립트 실행 포함)
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    CI=true pnpm install --no-frozen-lockfile --foreground-scripts
+
+# 4. 포트 설정 및 실행
+EXPOSE 3000
+CMD ["pnpm", "start"]

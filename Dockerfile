@@ -1,22 +1,19 @@
-FROM node:20-slim AS base
+FROM node:20-slim
+
+# 1. pnpm 설정 및 설치
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-# 내장 패키지 매니저 관리 도구 활성화
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# 빌드 단계 선언 및 pnpm 캐시 마운트 이용
-FROM base AS build
-COPY . /usr/src/app
 WORKDIR /usr/src/app
+
+# 2. 소스 코드 복사
+COPY . .
+
+# 3. 의존성 설치 (ffmpeg 빌드 스크립트 실행 포함)
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    CI=true pnpm install --no-frozen-lockfile
+    CI=true pnpm install --no-frozen-lockfile --foreground-scripts
 
-# 실행 전용 이미지 생성 및 결과물 복사
-FROM node:20-slim
-WORKDIR /app
-COPY --from=build /usr/src/app/dist ./dist
-COPY --from=build /usr/src/app/package.json ./package.json
-COPY --from=build /usr/src/app/node_modules ./node_modules
-
-EXPOSE 8080
+# 4. 포트 설정 및 실행
+EXPOSE 3000
 CMD ["pnpm", "start"]

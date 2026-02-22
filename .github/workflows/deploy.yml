@@ -35,6 +35,7 @@ jobs:
         with:
           workload_identity_provider: '${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}'
           service_account: '${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}'
+          project_id: 'fabled-sector-481601-b0'
 
       - name: 'Upload to GCS'
         uses: 'google-github-actions/upload-cloud-storage@v2'
@@ -61,3 +62,4 @@ jobs:
           service: 'streaming-server' # Cloud Run에 표시될 이름
           image: 'asia-northeast3-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/streaming-server/my-image:${{ github.sha }}'
           region: 'asia-northeast3'
+          project_id: 'fabled-sector-481601-b0'

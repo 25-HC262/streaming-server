@@ -28,9 +28,10 @@ export const connectToModel = (wss) => {
         const dataString = message.data.toString();
         try {
             const data = JSON.parse(dataString);
-            console.log(`Model server response: ${JSON.stringify(data)}`);
+            const targetUserId = data.userId;
+            console.log(`Model server response (userId: ${targetUserId}): ${data.text}`);
             wss.clients.forEach(client => {
-                if (client.readyState === WebSocket.OPEN) {
+                if (client.readyState === WebSocket.OPEN && client.userId === targetUserId) {
                     client.send(JSON.stringify({
                         type: 'model_response',
                         text: data.text

@@ -104,6 +104,9 @@ export const handleWebSocketConnection = (ws, req) => {
                                     }
                                 });
                             }
+                            if (modelWs && modelWs.readyState === WebSocket.OPEN) {
+                                modelWs.send(JSON.stringify({ type: 'stop_stream', userId }));
+                            }
                             break;
                         }
                         case 'subscribe': {
@@ -170,18 +173,14 @@ export const handleWebSocketConnection = (ws, req) => {
                 // Handling binary data (video chunk)
                 if (modelWs && modelWs.readyState === WebSocket.OPEN) {
                     const publishingUserId = ws.userId;
-                    const width = 640;
-                    const height = 480;
-                    const mimeType = userIdToMimeType.get(publishingUserId); // 맵에서 가져옴
-                    modelWs.send(data, { binary: true });
-                    console.log("@#@# sended data (width, height, mimeType)", width, height, mimeType)
-                    // modelWs.send(JSON.stringify({
-                    //     type: 'stream_config', // 새로운 타입으로 정의
-                    //     userId,
-                    //     mimeType,
-                    //     width,
-                    //     height
-                    // }));
+                    // Prepend 4-byte userId header so model can route per-user sequences
+                    const userIdBytes = Buffer.from(publishingUserId, 'utf8');
+                    const header = Buffer.allocUnsafe(4);
+                    header.writeUInt32BE(userIdBytes.length, 0);
+                    const rawData = data instanceof Buffer ? data : Buffer.from(data);
+                    const payload = Buffer.concat([header, userIdBytes, rawData]);
+                    modelWs.send(payload, { binary: true });
+                    console.log(`@#@# 프레임 전송 (userId: ${publishingUserId}, size: ${rawData.length}B)`);
                 }
                 console.log(`@#@# ws.userID, userIdToSubscribers: ${!!ws.userId} ${userIdToSubscribers.has(ws.userId)}`);
                 if (ws.userId && userIdToSubscribers.has(ws.userId)) {

@@ -1,272 +1,177 @@
 import { WebSocket } from 'ws';
-import { userIdToSubscribers, userIdToMimeType, userIdToStream } from "../config/maps.js";
+import { userIdToMimeType, userIdToStream, userIdToSubscribers } from '../config/maps.js';
 import { modelWs } from './modelController.js';
 
-// Handling connection between chrome extension - streaming server - model server
-export const handleWebSocketConnection = (ws, req) => { 
-        
-    //const server = app.listen(3000);
-    // const server = http.createServer(app);
+// Chrome 확장 프로그램 ↔ 스트리밍 서버 ↔ 모델 서버 사이의 메시지를 중계합니다.
+export const handleWebSocketConnection = (ws, req) => {
+  const state = {
+    subscribedUserId: null,
+    isClosed: false,
+  };
 
-    // Receive actions from chrome extension program   
-    // const wss = new WebSocketServer({ server, path: '/stream' });
+  // URL 파라미터에서 userId를 추출해 세션에 바인딩합니다.
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const queryIndex = url.indexOf('?');
+  const query = queryIndex !== -1 ? url.slice(queryIndex + 1) : '';
+  const urlParams = new URLSearchParams(query);
+  const userId = url.searchParams.get('userId');
 
-    // Central maps for tracking users and their streams
-    
-    // const userIdToSubscribers = new Map();
-    const senderToPublishingUserIds = new Map();
-    // const userIdToMimeType = new Map();
-    
-   const urlParams = new URLSearchParams(req.url.slice(req.url.indexOf('?')));
-        const userId = urlParams.get('userId');
+  if (!userId) {
+    ws.close(1008, 'userId is required.');
+    return;
+  }
 
-        if (userId) {
-            ws.userId = userId;
-            console.log("@#@# ws.userId: ",ws.userId)
-        } else {
-            console.warn("Connection attempt without a userId. Disconnecting.");
-            ws.close(1008, "userId is required.");
-            return;
+  ws.userId = userId;
+
+  // WebSocket 프레임을 텍스트/바이너리로 구분해 제어 메시지와 프레임을 라우팅합니다.
+  async function handleWsMessage(data) {
+    // 텍스트 메시지 처리 (JSON 제어 메시지)
+    if (typeof data === 'string') {
+      // 텍스트 프레임은 제어 JSON으로 취급합니다.
+      let parsedMessage;
+      try {
+        parsedMessage = JSON.parse(data);
+      } catch (_) {
+        return;
+      }
+
+      // 주기 확인용 ping/pong 처리입니다.
+      if (parsedMessage.type === 'ping') {
+        ws.send(JSON.stringify({ type: 'pong', sentAt: parsedMessage.sentAt }));
+        return;
+      }
+
+      switch (parsedMessage.type) {
+        case 'start_stream': {
+          const { userId: publishingUserId, mimeType, fps, width, height } = parsedMessage;
+          ws.userId = publishingUserId;
+          userIdToStream.set(publishingUserId, []);
+          userIdToMimeType.set(publishingUserId, mimeType);
+
+          const subscribers = userIdToSubscribers.get(publishingUserId);
+          if (subscribers) {
+            for (const subscriber of subscribers) {
+              if (subscriber.readyState === WebSocket.OPEN) {
+                subscriber.send(JSON.stringify({ type: 'stream_started', mimeType }));
+              }
+            }
+          }
+
+          // 모델 서버에 스트림 메타데이터를 전달합니다.
+          if (modelWs && modelWs.readyState === WebSocket.OPEN) {
+            const config = {
+              type: 'stream_config',
+              userId: publishingUserId,
+              mimeType,
+              fps,
+              width,
+              height,
+            };
+            // 값이 없으면 불필요한 키 전송을 줄입니다.
+            if (typeof width === 'undefined') delete config.width;
+            if (typeof height === 'undefined') delete config.height;
+            modelWs.send(
+              JSON.stringify(config),
+            );
+          }
+          break;
         }
 
-        const state = {
-            subscribedUserId: null,
-            isClosed: false,
-        };
+        case 'stop_stream': {
+          const { userId: publishingUserId } = parsedMessage;
+          userIdToStream.delete(publishingUserId);
+          userIdToMimeType.delete(publishingUserId);
 
-
-        ws.on('message', async (data) => {
-            console.log("@#@# message 받음");
-            let isBinary = false;
-            let message;
-
-            try {
-                const messageText = (data instanceof Buffer) ? data.toString('utf8') : data;
-                message = JSON.parse(messageText);
-                
-                console.log(`@#@# JSON 메시지가 수신됨 in websockercontroller: ${message.type}`);
-                
-            } catch (error) {
-                // 영상 데이터임 
-                isBinary = true;
-                console.log(`@#@# 영상 데이터 받음 :`,isBinary);
+          const subscribers = userIdToSubscribers.get(publishingUserId);
+          if (subscribers) {
+            for (const subscriber of subscribers) {
+              if (subscriber.readyState === WebSocket.OPEN) {
+                subscriber.send(JSON.stringify({ type: 'stream_stopped' }));
+              }
             }
+          }
 
-            if (!isBinary && message) {
-                try {
-                    // const message = JSON.parse(data);
-                    switch (message.type) {
-                        case 'start_stream': {
-                            const { userId, userName, width, height, fps, mimeType } = message;
-                            
-                            ws.userId = userId;
-                            userIdToStream.set(userId, []); // Initialize new stream buffer 
-                            userIdToMimeType.set(userId, mimeType);
+          if (modelWs && modelWs.readyState === WebSocket.OPEN) {
+            modelWs.send(JSON.stringify({ type: 'stop_stream', userId: publishingUserId }));
+          }
+          break;
+        }
 
-                            const subscribers = userIdToSubscribers.get(userId);
-                            // console.log("@#@# userIdToSubscribers : ",userIdToSubscribers);
-                            // console.log("@#@# subscribers : ",subscribers);
-                            console.log("@#@# userId : ",userId);
-                            if (subscribers) {
-                                subscribers.forEach(subscriber => {
-                                    if (subscriber.readyState === WebSocket.OPEN) {
-                                        subscriber.send(JSON.stringify({
-                                        type: 'stream_started',
-                                        mimeType: mimeType
-                                        }));
-                                    }
-                                });
-                            }
-                            if (modelWs && modelWs.readyState === WebSocket.OPEN) {
-                                modelWs.send(JSON.stringify({
-                                    type: 'stream_config', 
-                                    userId,
-                                    mimeType,
-                                    width,
-                                    height
-                                }));
-                                console.log(`[MODEL 중계] 초기 설정 전송: ${mimeType}`);
-                            }
-                            break;
-                        }
-                        case 'stop_stream': {
-                            const { userId } = message;
-                            userIdToStream.delete(userId);
-                            userIdToMimeType.delete(userId);
+        case 'subscribe': {
+          const subscribeUserId = parsedMessage.userId;
+          if (!subscribeUserId) {
+            ws.send(JSON.stringify({ type: 'error', error: 'userId is required' }));
+            return;
+          }
 
-                            const subscribers = userIdToSubscribers.get(userId);
-                            if (subscribers) {
-                                subscribers.forEach(subscriber => {
-                                    if (subscriber.readyState === WebSocket.OPEN) {
-                                        subscriber.send(JSON.stringify({
-                                        type: 'stream_stopped'
-                                        }));
-                                    }
-                                });
-                            }
-                            break;
-                        }
-                        case 'subscribe': {
-                            const userId = message.userId;
-                            if (!userId) {
-                                ws.send(JSON.stringify({ type: 'error', message: 'userId is required' }));
-                                return;
-                            }
+          state.subscribedUserId = subscribeUserId;
+          if (!userIdToSubscribers.has(subscribeUserId)) {
+            userIdToSubscribers.set(subscribeUserId, new Set());
+          }
+          userIdToSubscribers.get(subscribeUserId).add(ws);
 
-                            state.subscribedUserId = userId;
-                            
-                            if (!userIdToSubscribers.has(userId)) {
-                                userIdToSubscribers.set(userId, new Set());
-                                console.log("@#@# userIdToSubscribers 에 추가했습니다 : ",userIdToSubscribers.has(userId));
-                            }
-                            
-                            userIdToSubscribers.get(userId).add(ws);
-                            // Send mime type first if stream has already been started 
-                            if (userIdToStream.has(userId) && userIdToMimeType.has(userId)) {
-                                ws.send(JSON.stringify({
-                                type: 'stream_started',
-                                mimeType: userIdToMimeType.get(userId)
-                                }));
-                            } 
-                            // Stream is not started yet 
-                            else {
-                                ws.send(JSON.stringify({
-                                    type: 'stream_stopped',
-                                    message: 'Stream not yet available.'
-                                }));
-                            }
-                            break;
-                        }
-                        case 'unsubscribe': {
-                            const { userId } = message;
-                            const set = userIdToSubscribers.get(userId);
-                            if (set) set.delete(ws);
-                            if (state.subscribedUserId === userId) state.subscribedUserId = null;
-                            ws.send(JSON.stringify({ type: 'unsubscribed', userId }));
-                            break;
-                        }
-                        
-                        case 'video_chunk': {
-                            /*
-                            // Queue: next binary message belongs to this userId
-                            const { userId } = message;
-                            state.pendingChunkQueue.push(userId);
-                            if (modelWs && modelWs.readyState === 1) {
-                                // modelWs.send(text);
-                                console.log(`Forwarded metadata for user ${userId} to model.`);
-                            }
-                                */
-                            // Next message is video chunk so,, just pass it 
-                            break;
-                        }
-                        default: {
-                            ws.send(JSON.stringify({ type: 'error', error: `Unknown message type: ${message.type}` }));
-                        }
-                    }
-                } catch (error) {
-                    console.error('WS message handling error:', error);
-                }
-            } else if (isBinary) {
-                // Handling binary data (video chunk)
-                if (modelWs && modelWs.readyState === WebSocket.OPEN) {
-                    const publishingUserId = ws.userId;
-                    const width = 640;
-                    const height = 480;
-                    const mimeType = userIdToMimeType.get(publishingUserId); // 맵에서 가져옴
-                    modelWs.send(data, { binary: true });
-                    console.log("@#@# sended data (width, height, mimeType)", width, height, mimeType)
-                    // modelWs.send(JSON.stringify({
-                    //     type: 'stream_config', // 새로운 타입으로 정의
-                    //     userId,
-                    //     mimeType,
-                    //     width,
-                    //     height
-                    // }));
-                }
-                console.log(`@#@# ws.userID, userIdToSubscribers: ${!!ws.userId} ${userIdToSubscribers.has(ws.userId)}`);
-                if (ws.userId && userIdToSubscribers.has(ws.userId)) {
-                    const subscribers = userIdToSubscribers.get(ws.userId);
-                    console.log(`@#@# 구독자 수: ${subscribers.size}`);
-                    subscribers.forEach(subscriber => {
-                        if (subscriber.readyState === WebSocket.OPEN) {
-                            subscriber.send(data); // 비디오 청크를 그대로 전달
-                        }
-                    });
-                }
-            }
-            /*
-            try {
-                if (isBinary) {
-                    const publishingUserId = ws.userId;
-                    if (!publishingUserId) {
-                        console.warn('Binary chunk from a non-publishing connection, dropping.');
-                        return;
-                    }
+          // 스트림이 이미 시작됐으면 mimeType을 먼저 전달합니다.
+          if (userIdToStream.has(subscribeUserId) && userIdToMimeType.has(subscribeUserId)) {
+            ws.send(JSON.stringify({ type: 'stream_started', mimeType: userIdToMimeType.get(subscribeUserId) }));
+          } else {
+            ws.send(JSON.stringify({ type: 'stream_stopped', error: 'Stream not yet available.' }));
+          }
+          break;
+        }
 
-                    if (modelWs && modelWs.readyState === 1) {
-                        modelWs.send(data); // Sending video data to model 
-                        console.log(`Forwarded video chunk for user ${publishingUserId} to model.`);
-                    }
-                    
-                    // Debugging code : checking if video is sending 
-                    const subs = userIdToSubscribers.get(publishingUserId);
-                    if (subs && subs.size) {
-                        for (const client of subs) {
-                            if (client.readyState === 1) {
-                                client.send(data, { binary: true });
-                            }
-                        }
-                    }
-                    return;
-                }
+        case 'unsubscribe': {
+          const { userId: unsubUserId } = parsedMessage;
+          const set = userIdToSubscribers.get(unsubUserId);
+          if (set) set.delete(ws);
+          if (state.subscribedUserId === unsubUserId) state.subscribedUserId = null;
+          ws.send(JSON.stringify({ type: 'unsubscribed', userId: unsubUserId }));
+          break;
+        }
 
-                const text = typeof data === 'string' ? data : data.toString('utf8');
-                let message;
-                try {
-                    message = JSON.parse(text);
-                } catch (err) {
-                    console.warn('Non-JSON text message received:', text.slice(0, 200));
-                    return;
-                }
+        default:
+          ws.send(JSON.stringify({ type: 'error', error: `Unknown message type: ${parsedMessage.type}` }));
+      }
+      return;
+    }
 
-                // Changing status of streaming server depend on chrome extension program 
-                
-            } catch (err) {
-                console.error('WS message handling error:', err);
-                try { ws.send(JSON.stringify({ type: 'error', error: String(err?.message || err) })); } catch {}
-            }
-                */
-        });
+    // 바이너리 프레임은 [4byte userIdLen][UTF-8 userId][JPEG bytes] 프로토콜을 그대로 처리합니다.
+    const buffer = data instanceof Buffer ? data : Buffer.from(data);
+    if (buffer.byteLength < 4) return;
 
-        ws.on('close', () => {
-            state.isClosed = true;
-            // Remove from subscribers
-            if (state.subscribedUserId) {
-                const set = userIdToSubscribers.get(state.subscribedUserId);
-                if (set) {
-                    set.delete(ws);
-                }
-            }
-            // If sender, notify and cleanup
-            const publishing = senderToPublishingUserIds.get(ws);
-            if (publishing) {
-                for (const userId of publishing) {
-                    const subs = userIdToSubscribers.get(userId);
-                    if (subs && subs.size) {
-                        for (const client of subs) {
-                            if (client.readyState === 1) {
-                                client.send(JSON.stringify({ type: 'stream_stopped', userId }));
-                            }
-                        }
-                    }
-                    userIdToMimeType.delete(userId);
-                }
-                senderToPublishingUserIds.delete(ws);
-            }
-        });
-        /*
-    wss.on('connection', (ws) => {
-        
-    });
-    */
-}
+    let publishingUserId = ws.userId;
+    const userIdLen = buffer.readUInt32BE(0);
+    const userIdStart = 4;
+    const userIdEnd = userIdStart + userIdLen;
+
+    if (buffer.byteLength < userIdEnd) return;
+
+    const extractedUserId = buffer.subarray(4, userIdEnd).toString('utf8');
+
+    // 모델 서버와 구독자에게는 수신 프레임을 원본 그대로 전달합니다.
+    if (modelWs && modelWs.readyState === WebSocket.OPEN) {
+      modelWs.send(buffer, { binary: true });
+    }
+
+    const subscribers = userIdToSubscribers.get(extractedUserId);
+    if (subscribers) {
+      for (const subscriber of subscribers) {
+        if (subscriber.readyState === WebSocket.OPEN) {
+          subscriber.send(buffer, { binary: true });
+        }
+      }
+    }
+  }
+
+  // 연결이 종료되면 구독자 목록에서 해당 WebSocket을 제거합니다.
+  function handleWsClose() {
+    state.isClosed = true;
+    if (!state.subscribedUserId) return;
+
+    const set = userIdToSubscribers.get(state.subscribedUserId);
+    if (set) set.delete(ws);
+  }
+
+  ws.on('message', handleWsMessage);
+  ws.on('close', handleWsClose);
+};
+

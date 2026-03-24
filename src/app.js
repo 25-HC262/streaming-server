@@ -27,6 +27,7 @@ function onWsConnection(ws, req) {
   const userId = urlParams.get('userId');
 
   if (userId) ws.userId = userId;
+  console.log(`@#@# 웹소켓 연결: userId ${userId} 할당`);
   handleWebSocketConnection(ws, req);
 }
 

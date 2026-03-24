@@ -38,7 +38,7 @@ function onDomContentLoaded() {
     // 메시지는 JSON(상태) 또는 바이너리(비디오 청크)로 처리합니다.
     async function onWsMessage(event) {
       if (typeof event.data === 'string') {
-        console.log('JSON 메시지 수신 in streamcontroller:', event.data);
+        // console.log('JSON 메시지 수신 in streamcontroller:', event.data);
         try {
           const msg = JSON.parse(event.data);
           if (msg.type === 'stream_started' && msg.mimeType) {
@@ -69,7 +69,7 @@ function onDomContentLoaded() {
       }
 
       const chunk = event.data instanceof ArrayBuffer ? event.data : await event.data.arrayBuffer();
-      console.log('바이너리 청크 수신, 크기:', chunk.byteLength);
+      // console.log('바이너리 청크 수신, 크기:', chunk.byteLength);
 
       if (sourceBuffer && !sourceBuffer.updating) {
         try {

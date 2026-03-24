@@ -6,25 +6,15 @@ import {
 } from "../config/maps.js";
 import { modelWs } from "./modelController.js";
 
-// Chrome 확장 프로그램 ↔ 스트리밍 서버 ↔ 모델 서버 사이의 메시지를 중계합니다.
 export const handleWebSocketConnection = (ws, req) => {
-  ws.send(
-    JSON.stringify({
-      type: "info",
-      message: "서버와 연결되었습니다. 모델 서버 없이 통신 테스트 중입니다.",
-    }),
-  );
-
+  // 1. 초기 상태 설정
   const state = {
     subscribedUserId: null,
     isClosed: false,
   };
 
-  // URL 파라미터에서 userId를 추출해 세션에 바인딩합니다.
+  // URL 파라미터에서 userId 추출
   const url = new URL(req.url, `http://${req.headers.host}`);
-  // const queryIndex = url.indexOf('?');
-  // const query = queryIndex !== -1 ? url.slice(queryIndex + 1) : '';
-  // const urlParams = new URLSearchParams(query);
   const userId = url.searchParams.get("userId");
 
   if (!userId) {
@@ -34,179 +24,37 @@ export const handleWebSocketConnection = (ws, req) => {
 
   ws.userId = userId;
 
-  // WebSocket 프레임을 텍스트/바이너리로 구분해 제어 메시지와 프레임을 라우팅합니다.
-  async function handleWsMessage(data) {
-    // 텍스트 메시지 처리 (JSON 제어 메시지)
-    if (typeof data === "string") {
-      // 텍스트 프레임은 제어 JSON으로 취급합니다.
-      let parsedMessage;
-      try {
-        parsedMessage = JSON.parse(data);
-      } catch (_) {
-        return;
-      }
+  /**
+   * [추가] 연결 종료 처리 함수
+   */
+  function handleWsClose() {
+    state.isClosed = true;
 
-      // 주기 확인용 ping/pong 처리입니다.
-      if (parsedMessage.type === "ping") {
-        ws.send(JSON.stringify({ type: "pong", sentAt: parsedMessage.sentAt }));
-        return;
-      }
-
-      switch (parsedMessage.type) {
-        case "start_stream": {
-          const {
-            userId: publishingUserId,
-            mimeType,
-            fps,
-            width,
-            height,
-          } = parsedMessage;
-          ws.userId = publishingUserId;
-          userIdToStream.set(publishingUserId, []);
-          userIdToMimeType.set(publishingUserId, mimeType);
-
-          const subscribers = userIdToSubscribers.get(publishingUserId);
-          if (subscribers) {
-            for (const subscriber of subscribers) {
-              if (subscriber.readyState === WebSocket.OPEN) {
-                subscriber.send(
-                  JSON.stringify({ type: "stream_started", mimeType }),
-                );
-                subscriber.send(
-                  JSON.stringify({
-                    type: "info",
-                    message: "수어 번역을 시작합니다",
-                  }),
-                );
-              }
-            }
-          }
-
-          // 모델 서버에 스트림 메타데이터를 전달합니다.
-          if (modelWs && modelWs.readyState === WebSocket.OPEN) {
-            const config = {
-              type: "stream_config",
-              userId: publishingUserId,
-              mimeType,
-              fps,
-              width,
-              height,
-            };
-            console.log("@@@@", config.userId);
-            // 값이 없으면 불필요한 키 전송을 줄입니다.
-            if (typeof width === "undefined") delete config.width;
-            if (typeof height === "undefined") delete config.height;
-            modelWs.send(JSON.stringify(config));
-          }
-          break;
-        }
-
-        case "stop_stream": {
-          const { userId: publishingUserId } = parsedMessage;
-          userIdToStream.delete(publishingUserId);
-          userIdToMimeType.delete(publishingUserId);
-
-          const subscribers = userIdToSubscribers.get(publishingUserId);
-          if (subscribers) {
-            for (const subscriber of subscribers) {
-              if (subscriber.readyState === WebSocket.OPEN) {
-                subscriber.send(JSON.stringify({ type: "stream_stopped" }));
-                subscriber.send(
-                  JSON.stringify({
-                    type: "info",
-                    message: "수어 번역을 종료합니다",
-                  }),
-                );
-              }
-            }
-          }
-
-          if (modelWs && modelWs.readyState === WebSocket.OPEN) {
-            modelWs.send(
-              JSON.stringify({ type: "stop_stream", userId: publishingUserId }),
-            );
-          }
-          break;
-        }
-
-        case "subscribe": {
-          const subscribeUserId = parsedMessage.userId;
-          if (!subscribeUserId) {
-            ws.send(
-              JSON.stringify({ type: "error", error: "userId is required" }),
-            );
-            return;
-          }
-
-          state.subscribedUserId = subscribeUserId;
-          if (!userIdToSubscribers.has(subscribeUserId)) {
-            userIdToSubscribers.set(subscribeUserId, new Set());
-          }
-          userIdToSubscribers.get(subscribeUserId).add(ws);
-
-          // 스트림이 이미 시작됐으면 mimeType을 먼저 전달합니다.
-          if (
-            userIdToStream.has(subscribeUserId) &&
-            userIdToMimeType.has(subscribeUserId)
-          ) {
-            ws.send(
-              JSON.stringify({
-                type: "stream_started",
-                mimeType: userIdToMimeType.get(subscribeUserId),
-              }),
-            );
-          } else {
-            ws.send(
-              JSON.stringify({
-                type: "stream_stopped",
-                error: "Stream not yet available.",
-              }),
-            );
-          }
-          break;
-        }
-
-        case "unsubscribe": {
-          const { userId: unsubUserId } = parsedMessage;
-          const set = userIdToSubscribers.get(unsubUserId);
-          if (set) set.delete(ws);
-          if (state.subscribedUserId === unsubUserId)
-            state.subscribedUserId = null;
-          ws.send(
-            JSON.stringify({ type: "unsubscribed", userId: unsubUserId }),
-          );
-          break;
-        }
-
-        default:
-          ws.send(
-            JSON.stringify({
-              type: "error",
-              error: `Unknown message type: ${parsedMessage.type}`,
-            }),
-          );
-      }
-      return;
+    if (state.subscribedUserId) {
+      const set = userIdToSubscribers.get(state.subscribedUserId);
+      if (set) set.delete(ws);
     }
+  }
 
-    // 바이너리 프레임은 [4byte userIdLen][UTF-8 userId][JPEG bytes] 프로토콜을 그대로 처리합니다.
-    const buffer = data instanceof Buffer ? data : Buffer.from(data);
+  /**
+   * 바이너리 프레임(이미지) 처리 함수
+   */
+  function handleBinaryFrame(data) {
+    const buffer = Buffer.isBuffer(data) ? data : Buffer.from(data);
     if (buffer.byteLength < 4) return;
 
-    let publishingUserId = ws.userId;
     const userIdLen = buffer.readUInt32BE(0);
-    const userIdStart = 4;
-    const userIdEnd = userIdStart + userIdLen;
-
+    const userIdEnd = 4 + userIdLen;
     if (buffer.byteLength < userIdEnd) return;
 
     const extractedUserId = buffer.subarray(4, userIdEnd).toString("utf8");
 
-    // 모델 서버와 구독자에게는 수신 프레임을 원본 그대로 전달합니다.
+    // 모델 서버 전송
     if (modelWs && modelWs.readyState === WebSocket.OPEN) {
       modelWs.send(buffer, { binary: true });
     }
 
+    // 구독자들에게 중계
     const subscribers = userIdToSubscribers.get(extractedUserId);
     if (subscribers) {
       for (const subscriber of subscribers) {
@@ -217,13 +65,80 @@ export const handleWebSocketConnection = (ws, req) => {
     }
   }
 
-  // 연결이 종료되면 구독자 목록에서 해당 WebSocket을 제거합니다.
-  function handleWsClose() {
-    state.isClosed = true;
-    if (!state.subscribedUserId) return;
+  /**
+   * 메시지 통합 핸들러
+   */
+  async function handleWsMessage(data) {
+    let messageString = "";
+    const isBuffer = Buffer.isBuffer(data);
 
-    const set = userIdToSubscribers.get(state.subscribedUserId);
-    if (set) set.delete(ws);
+    // JSON 텍스트인지 판별 (첫 바이트가 '{' 인지 확인)
+    if (!isBuffer && typeof data === "string") {
+      messageString = data;
+    } else if (isBuffer && data[0] === 123) {
+      // 123은 '{' 의 ASCII 코드
+      messageString = data.toString("utf8");
+    }
+
+    // 텍스트(JSON) 메시지 처리
+    if (messageString.startsWith("{")) {
+      try {
+        const parsedMessage = JSON.parse(messageString);
+
+        switch (parsedMessage.type) {
+          case "start_stream": {
+            const { userId: pubId, mimeType } = parsedMessage;
+            ws.userId = pubId;
+            userIdToStream.set(pubId, []);
+            userIdToMimeType.set(pubId, mimeType);
+
+            console.log(`[START_STREAM] ${pubId}`);
+
+            if (ws.readyState === WebSocket.OPEN) {
+              ws.send(JSON.stringify({ type: "stream_started", mimeType }));
+              ws.send(
+                JSON.stringify({
+                  type: "info",
+                  message: "수어 번역을 시작합니다",
+                }),
+              );
+            }
+            break;
+          }
+
+          case "stop_stream": {
+            const { userId: pubId } = parsedMessage;
+            console.log(`[STOP_STREAM] ${pubId}`);
+            if (ws.readyState === WebSocket.OPEN) {
+              ws.send(
+                JSON.stringify({
+                  type: "info",
+                  message: "수어 번역을 종료합니다",
+                }),
+              );
+            }
+            userIdToStream.delete(pubId);
+            break;
+          }
+
+          case "subscribe": {
+            const subId = parsedMessage.userId;
+            state.subscribedUserId = subId;
+            if (!userIdToSubscribers.has(subId)) {
+              userIdToSubscribers.set(subId, new Set());
+            }
+            userIdToSubscribers.get(subId).add(ws);
+            break;
+          }
+        }
+      } catch (e) {
+        console.error("JSON Parsing Error", e);
+      }
+      return;
+    }
+
+    // JSON이 아니면 바이너리 이미지로 처리
+    handleBinaryFrame(data);
   }
 
   ws.on("message", handleWsMessage);

@@ -33,7 +33,7 @@ export const connectToModel = (wss) => {
   // 모델 서버 메시지 전달
   function onModelMessage(message) {
     const dataString = message.data.toString();
-    console.log("@@@@", dataString);
+    // console.log("@@@@", dataString);
     try {
       const data = JSON.parse(dataString);
       const targetUserId = data.userId;

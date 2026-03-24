@@ -8,6 +8,13 @@ import { modelWs } from "./modelController.js";
 
 // Chrome 확장 프로그램 ↔ 스트리밍 서버 ↔ 모델 서버 사이의 메시지를 중계합니다.
 export const handleWebSocketConnection = (ws, req) => {
+  ws.send(
+    JSON.stringify({
+      type: "info",
+      message: "서버와 연결되었습니다. 모델 서버 없이 통신 테스트 중입니다.",
+    }),
+  );
+
   const state = {
     subscribedUserId: null,
     isClosed: false,
@@ -65,6 +72,12 @@ export const handleWebSocketConnection = (ws, req) => {
                 subscriber.send(
                   JSON.stringify({ type: "stream_started", mimeType }),
                 );
+                subscriber.send(
+                  JSON.stringify({
+                    type: "info",
+                    message: "수어 번역을 시작합니다",
+                  }),
+                );
               }
             }
           }
@@ -98,6 +111,12 @@ export const handleWebSocketConnection = (ws, req) => {
             for (const subscriber of subscribers) {
               if (subscriber.readyState === WebSocket.OPEN) {
                 subscriber.send(JSON.stringify({ type: "stream_stopped" }));
+                subscriber.send(
+                  JSON.stringify({
+                    type: "info",
+                    message: "수어 번역을 종료합니다",
+                  }),
+                );
               }
             }
           }
